@@ -24,11 +24,8 @@
 #include "os/os.h"
 #include "bsp/bsp.h"
 #include "hal/hal_gpio.h"
-#ifdef ARCH_sim
-#include "mcu/mcu_sim.h"
-#endif
-
-static volatile int g_task1_loops;
+#include "hal/hal_i2c.h"
+#include "mcu/nrf52_hal.h"
 
 /* For LED toggling */
 int g_led_pin;
@@ -46,20 +43,43 @@ main(int argc, char **argv)
 {
     int rc;
 
-#ifdef ARCH_sim
-    mcu_sim_parse_args(argc, argv);
-#endif
-
     sysinit();
 
     g_led_pin = LED_BLINK_PIN;
     hal_gpio_init_out(g_led_pin, 1);
 
+    static const struct nrf52_hal_i2c_cfg hal_i2c_cfg = {
+        .scl_pin = 27,
+        .sda_pin = 26,
+        .i2c_frequency = 100    /* 100 kHz */
+    };
+
+    rc = hal_i2c_init(0, (void *)&hal_i2c_cfg);
+    assert(rc == 0);
+
     while (1) {
-        ++g_task1_loops;
+
+        // Attempt dummy i2c write
+        uint8_t wbuff[1] = {0};
+        struct hal_i2c_master_data pdata = {
+            .address = 0x44,
+            .len = 1,
+            .buffer = wbuff
+        };
+        hal_i2c_master_write(0, &pdata, 100, 1);
+
+        // Write will fail and SCL will get stuck low
 
         /* Wait one second */
         os_time_delay(OS_TICKS_PER_SEC);
+
+
+        // Attempt to recover SCL (doesn't work for me)
+        rc = hal_i2c_init(0, (void *)&hal_i2c_cfg);
+        assert(rc == 0);
+
+        /* Wait one second */
+        os_time_delay(OS_TICKS_PER_SEC * 2);
 
         /* Toggle the LED */
         hal_gpio_toggle(g_led_pin);

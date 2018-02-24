@@ -54,8 +54,7 @@ static int
 i2c_fix_cli_cmd(int argc, char **argv) {
     console_printf("Trying to recover\n");
 
-    NRF_TWIM0->ENABLE = TWI_ENABLE_ENABLE_Disabled;
-    NRF_TWIM0->ENABLE = TWI_ENABLE_ENABLE_Enabled;
+    NRF_TWIM0->TASKS_STOP = 1;
     return 0;
 }
 

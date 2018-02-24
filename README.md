@@ -1,59 +1,16 @@
-<!--
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
--->
+# I2C Bug Example
 
-# Apache Blinky
+There seems to be a bug in the mynewt TWI code for the NRF52. When a device isn't present or otherwise NACKS the transaction, the NRF52 gets stuck pulling SCL low. This is a project to demonstrate that on an NRF52DK
 
-## Overview
+## Test runs on the nrf52dk (PCA10040)
 
-Apache Blinky is a skeleton for new Apache Mynewt projects.  The user downloads
-this skeleton by issuing the "newt new" command (using Apache Newt).  Apache
-blinky also contains an example app and target for use with Apache Mynewt to
-help you get started.
+## Equipment required
+* NRF52DK (PCA10040)
+* Multimeter
 
-## Building
-
-Apache Blinky contains an example Apache Mynewt application called blinky.
-When executed on suitably equipped hardware, this application repeatedly blinks
-an LED.  The below procedure describes how to build this application for the
-Apache Mynewt simulator.
-
-1. Download and install Apache Newt.
-
-You will need to download the Apache Newt tool, as documented in the [Getting Started Guide](http://mynewt.apache.org/os/get_started/introduction/).
-
-2. Download the Apache Mynewt Core package (executed from the blinky directory).
-
-```no-highlight
-    $ newt install
-```
-
-3. Build the blinky app for the sim platform using the "my_blinky_sim" target
-(executed from the blinky directory).
-
-```no-highlight
-    $ newt build my_blinky_sim
-```
-
-The Apache Newt tool should indicate the location of the generated blinky
-executable.  Since the simulator does not have an LED to blink, this version of
-blinky is not terribly exciting - a printed message indicating the current LED
-state.  To learn how to build blinky for actual hardware, please see the
-[Getting Started Guide](http://mynewt.apache.org/os/get_started/introduction/).
+## Steps to reproduce
+1. Load on the nrf52 (newt run nrf52dk 0)
+2. Measure pin p0.27 (SCL) with a multimeter, it should be pulled high
+3. Connect over serial terminal and run the command 'i2c_scan 0'
+4. Measure p0.27 again and it will be low, which it shouldn't (Note that there are no devices connected that could be pulling SCL low)
+5. Now run the command '2c_fix' and measure p0.27 again (It should be high)

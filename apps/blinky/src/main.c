@@ -78,7 +78,7 @@ void blink_task_func(void *arg) {
 // then connect over serial terminal and run the command 'i2c_scan 0'
 // Measure p0.27 again and it will be low, which it shouldn't
 // Note that there are no devices connected that could be pulling SCL low
-// Now run the command `'2c_fix' and measure p0.27 again
+// Now run the command 'i2c_fix' and measure p0.27 again
 // It should be high
 
 int
